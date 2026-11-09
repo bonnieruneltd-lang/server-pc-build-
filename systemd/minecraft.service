@@ -1,0 +1,61 @@
+[Unit]
+Description=Minecraft Forge 1.20.1 Server (Villager Recruits/Workers)
+Documentation=file:///opt/minecraft/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=minecraft
+Group=minecraft
+WorkingDirectory=/opt/minecraft
+
+# 16 GB heap on 32 GB of RAM. Aikar's G1GC flags (see README.md section 5).
+# Keep -Xms == -Xmx and AlwaysPreTouch so there is no heap-growth stall mid-fight.
+ExecStart=/usr/bin/java \
+    -Xms16G -Xmx16G \
+    -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 \
+    -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch \
+    -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M \
+    -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 \
+    -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 \
+    -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 \
+    -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 \
+    -Dusing.aikars.flags=https://mcflags.emc.gs \
+    -jar forge-1.20.1-47.4.0-shim.jar --nogui
+
+# Stop cleanly: ask the server to save and shut down over RCON, so the world
+# finishes save-all before the JVM dies. 143 = SIGTERM fallback.
+ExecStop=/bin/sh -c 'python3 /opt/minecraft/scripts/rcon.py stop || true'
+Restart=on-failure
+RestartSec=15
+TimeoutStartSec=600
+TimeoutStopSec=180
+KillSignal=SIGTERM
+SuccessExitStatus=0 143
+
+# Server console output goes to a rotating log via logrotate, not to the journal.
+StandardOutput=append:/opt/minecraft/logs/latest-console.log
+StandardError=append:/opt/minecraft/logs/latest-console.log
+
+# Let the JVM use the heap it asks for, and give it enough file handles.
+LimitNOFILE=65535
+LimitNPROC=65535
+Nice=-5
+
+# Hardening that does not break Minecraft.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/minecraft
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+# Cover thermal/UPS-driven shutdowns with a clean save.
+OOMScoreAdjust=-500
+
+[Install]
+WantedBy=multi-user.target

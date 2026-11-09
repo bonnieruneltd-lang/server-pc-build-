@@ -1,0 +1,31 @@
+# Villager Recruits — per-world server config
+# Real path: <server>/world/serverconfig/recruits-server.toml
+# (global mod defaults live in <server>/config/recruits-common.toml)
+#
+# NOTE: This is a REFERENCE EXCERPT, not a drop-in replacement. The mod writes the
+# full file on first world load; change these keys in that generated file, or merge
+# them in. Key names are as documented by the mod author / hosting guides.
+# Restart (or reload the world) after editing.
+
+[server]
+    # THE most important setting for a 30-player server.
+    # 30 players x 20 recruits = ~600 AI entities, which a 9800X3D holds at 20 TPS.
+    # 30 x 100 (the default cap) = ~3000 and no consumer CPU holds 20 TPS.
+    MaxRecruitsForPlayer = 20
+
+    # Claims keep armies from pathing into each other constantly.
+    AllowClaiming = true
+    MaxClaimChunks = 12
+
+    # Economy caps feel fairer than hard caps and keep standing armies small.
+    RecruitCurrency = "minecraft:emerald"
+    RecruitCost = 8
+    RecruitsPayment = true
+
+    # Sieges are the peak entity load. Don't let them run against offline owners.
+    SiegeRequiresOwnerOnline = true
+    SiegeClaimsRecruitsAmount = 10
+    SiegeClaimsConquerTime = 600
+
+    # Fewer vanilla iron golems = fewer entities in every village.
+    OverrideIronGolemSpawn = false

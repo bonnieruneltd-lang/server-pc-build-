@@ -1,0 +1,42 @@
+# Villager Workers — server config (requires Villager Recruits)
+# Real path: <server>/world/serverconfig/workers-server.toml  (or config/workers-common.toml
+# for global defaults — check which file your build generates).
+#
+# REFERENCE EXCERPT, not a drop-in replacement: option names are as published in the
+# mod's Configuration table. Merge these values into the generated file.
+
+[server]
+    # Keep work areas (and therefore workers) inside faction claims only.
+    ShouldWorkAreaOnlyBeInFactionClaim = true
+
+    # Builder block churn is the most expensive worker behaviour in tick time.
+    ShouldOnlyPlacingBuildingsBePossible = true
+    BuildMode = "Preset"
+
+    # Animal pens multiply pathing and entity counts silently.
+    AnimalPenMaxAnimals = 12
+
+    # Hire costs per profession (sanity-check these against your economy,
+    # they are the soft cap on how many workers exist at all).
+    FarmerCost = 8
+    LumberjackCost = 8
+    MinerCost = 12
+    BuilderCost = 16
+    MerchantCost = 10
+    CourierCost = 6
+    CookCost = 8
+
+    # Pickup behaviours generate item-entity churn + extra pathing per action.
+    # Turn off the ones your players won't miss.
+    FarmerPickup = true
+    LumberjackPickup = false
+    FishermanPickup = false
+    MinerPickup = false
+    AnimalFarmerPickup = true
+    MinerIgnore = ["minecraft:stone", "minecraft:deepslate", "minecraft:dirt",
+                   "minecraft:gravel", "minecraft:andesite", "minecraft:diorite",
+                   "minecraft:granite", "minecraft:tuff"]
+
+    # Breeding stays saturation-gated so villager counts don't explode.
+    VillagerBreedMixinEnabled = true
+    VillagerBreedSaturationThreshold = 15
